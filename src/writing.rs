@@ -160,6 +160,7 @@ pub fn commit(
     outcome
 }
 
+<<<<<<< HEAD
 pub fn delete(
     folders: &[SharedFolder],
     folder: &str,
@@ -193,6 +194,8 @@ pub fn delete(
     Ok(json!({"path":relative,"deleted":true,"previous_version":backup}))
 }
 
+=======
+>>>>>>> 6a7017d57de31e2601b7c8343df980b8e28b8929
 pub fn remove_created(
     folders: &[SharedFolder],
     folder: &str,

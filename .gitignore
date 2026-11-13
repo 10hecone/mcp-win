@@ -1,4 +1,5 @@
 node_modules/
+.mcp-history/
 target/
 archive-node/node_modules/
 archive-egui/caddy-download/

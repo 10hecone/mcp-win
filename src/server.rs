@@ -115,6 +115,7 @@ pub struct WriteTextArgs {
     content: String,
     expected_sha256: Option<String>,
 }
+<<<<<<< HEAD
 #[derive(Deserialize, schemars::JsonSchema)]
 pub struct DeleteArgs {
     /// ID via list_folders ou nom exact unique. Omettre si un seul dossier est partage.
@@ -125,6 +126,8 @@ pub struct DeleteArgs {
     /// Empreinte SHA256 actuelle retournée par read_file.
     expected_sha256: String,
 }
+=======
+>>>>>>> 6a7017d57de31e2601b7c8343df980b8e28b8929
 pub type DocumentArgs = crate::v1::design::Args;
 #[derive(Deserialize, schemars::JsonSchema)]
 pub struct BinaryArgs {
@@ -1024,6 +1027,7 @@ impl FilesServer {
         }
     }
     #[tool(
+<<<<<<< HEAD
         description = "Supprimer UN fichier ordinaire d'un dossier writable. expected_sha256 obligatoire (obtenu via read_file). Une copie est conservée dans l'historique local et peut être restaurée. Dossiers, liens et motifs refusés."
     )]
     async fn delete_file(&self, Parameters(args): Parameters<DeleteArgs>) -> CallToolResult {
@@ -1035,6 +1039,8 @@ impl FilesServer {
         .await
     }
     #[tool(
+=======
+>>>>>>> 6a7017d57de31e2601b7c8343df980b8e28b8929
         description = "Créer un PDF, DOCX ou PPTX avec mise en page professionnelle PAR DÉFAUT : thème, titres, marges, tableaux, encadrés, pagination, profil visuel et sources vérifiées. Accepte sections classiques ou blocks (heading/paragraph/list/table/callout/image) avec id stables. style professional/report/quote/invoice/commercial/course/presentation/minimal. raw=true seulement si texte brut explicitement demandé. Dossier writable, aucun écrasement. Puis review_document pour contrôler les pages. Pour Excel : write_spreadsheet."
     )]
     async fn create_document(&self, Parameters(args): Parameters<DocumentArgs>) -> CallToolResult {

@@ -49,6 +49,8 @@ struct Effect {
     before: Option<String>,
     previous_version: Option<String>,
     created: bool,
+    #[serde(default)]
+    deleted: bool,
 }
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Job {
@@ -226,7 +228,8 @@ async fn execute(
  "extract_document_layout"=>super::ocr_layout::extract(folders,serde_json::from_value(args).map_err(|e|e.to_string())?).await,
  "review_document"=>quality::inspect(&folders,args["folder"].as_str().unwrap_or(""),args["path"].as_str().ok_or("path requis")?),
  "create_archive"=>crate::archives::execute(&folders,crate::archives::Command::Create{folder:args["folder"].as_str().unwrap_or("").into(),paths:serde_json::from_value(args["paths"].clone()).map_err(|e|e.to_string())?,output_path:args["output_path"].as_str().ok_or("output_path requis")?.into()}),
- _=>Err("Étape autorisée : create_document, write_text_file, write_spreadsheet, read_file, index_folder, search_index, ocr_file, extract_document_layout, review_document, create_archive".into())
+ "delete_file"=>writing::delete(&folders,args["folder"].as_str().unwrap_or(""),args["path"].as_str().ok_or("path requis")?,args["expected_sha256"].as_str().ok_or("expected_sha256 requis")?),
+ _=>Err("Étape autorisée : create_document, write_text_file, write_spreadsheet, read_file, index_folder, search_index, ocr_file, extract_document_layout, review_document, create_archive, delete_file".into())
  }
 }
 fn launch(
@@ -295,11 +298,58 @@ pub fn journal_intent(
         before: before.map(str::to_owned),
         previous_version: previous.map(str::to_owned),
         created: before.is_none(),
+        deleted: false,
+    });
+    persist(&run.job)
+}
+pub fn journal_deletion(
+    folders: &[SharedFolder],
+    folder: &str,
+    path: &str,
+    before: &str,
+    previous: &str,
+) -> Result<(), String> {
+    let Some((id, step)) = STEP.try_with(Clone::clone).ok() else {
+        return Ok(());
+    };
+    let mut runs = registry()
+        .lock()
+        .map_err(|_| "Journal de workflow occupé")?;
+    let run = runs.get_mut(&id).ok_or("Workflow absent du journal")?;
+    let folder = library::select_folder(folders, folder)?.id.clone();
+    if run
+        .job
+        .effects
+        .iter()
+        .any(|e| e.deleted && e.step == step && e.folder == folder && e.path == path)
+    {
+        return Ok(());
+    }
+    run.job.effects.push(Effect {
+        step,
+        folder,
+        path: path.into(),
+        sha256: before.into(),
+        before: Some(before.into()),
+        previous_version: Some(previous.into()),
+        created: false,
+        deleted: true,
     });
     persist(&run.job)
 }
 fn effect_state(folders: &[SharedFolder], e: &Effect) -> Result<bool, String> {
     let path = writing::destination(folders, &e.folder, &e.path)?;
+    if e.deleted {
+        if !path.exists() {
+            return Ok(true);
+        }
+        let hash = writing::hash(&fs::read(&path).map_err(|e| e.to_string())?);
+        return if e.before.as_deref() == Some(hash.as_str()) {
+            Ok(false)
+        } else {
+            Err(format!("{} a été recréé ou modifié depuis le workflow", e.path))
+        };
+    }
     if !path.exists() {
         return if e.created {
             Ok(false)
@@ -349,9 +399,11 @@ async fn run_job(
             .cloned();
         let recovered = if let Some(e) = effect {
             match effect_state(&folders, &e) {
-                Ok(true) => Some(Ok(
-                    json!({"path":e.path,"sha256":e.sha256,"created":e.created,"previous_version":e.previous_version,"job_folder":e.folder,"recovered_after_interrupt":true}),
-                )),
+                Ok(true) => Some(Ok(if e.deleted {
+                    json!({"path":e.path,"deleted":true,"previous_version":e.previous_version,"job_folder":e.folder,"recovered_after_interrupt":true})
+                } else {
+                    json!({"path":e.path,"sha256":e.sha256,"created":e.created,"previous_version":e.previous_version,"job_folder":e.folder,"recovered_after_interrupt":true})
+                })),
                 Ok(false) => None,
                 Err(error) => Some(Err(error)),
             }
@@ -571,6 +623,11 @@ pub fn undo(folders: &[SharedFolder], id: &str) -> Result<Value, String> {
     for e in remaining {
         let outcome = if !effect_state(folders, &e)? {
             Ok(json!({"not_applied":true}))
+        } else if e.deleted {
+            match &e.previous_version {
+                Some(version) => crate::history::restore_deleted(folders, &e.folder, version, &e.path),
+                None => Err("Suppression sans version sauvegardée".into()),
+            }
         } else if let Some(version) = &e.previous_version {
             crate::history::restore(folders, &e.folder, version, &e.sha256)
         } else {

@@ -1029,10 +1029,8 @@ impl FilesServer {
     async fn delete_file(&self, Parameters(args): Parameters<DeleteArgs>) -> CallToolResult {
         let folders = self.folders.clone();
         log(&self.logs, format!("Suppression : {}", args.path));
-        blocking(move || {
-            writing::delete(&folders, &args.folder, &args.path, &args.expected_sha256)
-        })
-        .await
+        blocking(move || writing::delete(&folders, &args.folder, &args.path, &args.expected_sha256))
+            .await
     }
     #[tool(
         description = "Créer un PDF, DOCX ou PPTX avec mise en page professionnelle PAR DÉFAUT : thème, titres, marges, tableaux, encadrés, pagination, profil visuel et sources vérifiées. Accepte sections classiques ou blocks (heading/paragraph/list/table/callout/image) avec id stables. style professional/report/quote/invoice/commercial/course/presentation/minimal. raw=true seulement si texte brut explicitement demandé. Dossier writable, aucun écrasement. Puis review_document pour contrôler les pages. Pour Excel : write_spreadsheet."

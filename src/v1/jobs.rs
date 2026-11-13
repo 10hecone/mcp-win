@@ -347,7 +347,10 @@ fn effect_state(folders: &[SharedFolder], e: &Effect) -> Result<bool, String> {
         return if e.before.as_deref() == Some(hash.as_str()) {
             Ok(false)
         } else {
-            Err(format!("{} a été recréé ou modifié depuis le workflow", e.path))
+            Err(format!(
+                "{} a été recréé ou modifié depuis le workflow",
+                e.path
+            ))
         };
     }
     if !path.exists() {
@@ -625,7 +628,9 @@ pub fn undo(folders: &[SharedFolder], id: &str) -> Result<Value, String> {
             Ok(json!({"not_applied":true}))
         } else if e.deleted {
             match &e.previous_version {
-                Some(version) => crate::history::restore_deleted(folders, &e.folder, version, &e.path),
+                Some(version) => {
+                    crate::history::restore_deleted(folders, &e.folder, version, &e.path)
+                }
                 None => Err("Suppression sans version sauvegardée".into()),
             }
         } else if let Some(version) = &e.previous_version {

@@ -2,16 +2,16 @@
 
 fn destination(link: &str) -> Result<&'static str, String> {
     match link {
-        "releases" => Ok("https://github.com/extraopaa/mcp-win/releases"),
-        "repository" => Ok("https://github.com/extraopaa/mcp-win"),
-        "documentation" => Ok("https://github.com/extraopaa/mcp-win/blob/main/docs/wiki/Home.md"),
+        "releases" => Ok("https://github.com/10hecone/mcp-win/releases"),
+        "repository" => Ok("https://github.com/10hecone/mcp-win"),
+        "documentation" => Ok("https://github.com/10hecone/mcp-win/blob/main/docs/wiki/Home.md"),
         "getting-started" => {
-            Ok("https://github.com/extraopaa/mcp-win/blob/main/docs/wiki/Premiers-pas.md")
+            Ok("https://github.com/10hecone/mcp-win/blob/main/docs/wiki/Premiers-pas.md")
         }
         "connection-guide" => {
-            Ok("https://github.com/extraopaa/mcp-win/blob/main/docs/wiki/Connexion-IA.md")
+            Ok("https://github.com/10hecone/mcp-win/blob/main/docs/wiki/Connexion-IA.md")
         }
-        "tools-reference" => Ok("https://github.com/extraopaa/mcp-win/blob/main/docs/MCP-TOOLS.md"),
+        "tools-reference" => Ok("https://github.com/10hecone/mcp-win/blob/main/docs/MCP-TOOLS.md"),
         _ => Err("Ce lien ne fait pas partie des pages de MCP Win.".into()),
     }
 }
@@ -70,13 +70,13 @@ mod tests {
             let url = reqwest::Url::parse(destination(link).unwrap()).unwrap();
             assert_eq!(url.scheme(), "https");
             assert_eq!(url.host_str(), Some("github.com"));
-            assert!(url.path().starts_with("/extraopaa/mcp-win"));
+            assert!(url.path().starts_with("/10hecone/mcp-win"));
             assert!(url.query().is_none());
         }
         for untrusted in [
             "",
             "https://example.com",
-            "https://github.com/extraopaa/mcp-win",
+            "https://github.com/10hecone/mcp-win",
             "file:///C:/Windows/System32/calc.exe",
             "ms-settings:",
             "repository --argument",

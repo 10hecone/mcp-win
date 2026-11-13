@@ -13,7 +13,7 @@ use std::{
 };
 use tauri::State;
 
-const ENDPOINT: &str = "https://github.com/extraopaa/mcp-win/releases/latest/download/update.json";
+const ENDPOINT: &str = "https://github.com/10hecone/mcp-win/releases/latest/download/update.json";
 const PUBLIC_KEY: &str = include_str!("../assets/updater-public-key.txt");
 const MAX_ARCHIVE: u64 = 768 * 1024 * 1024;
 const MAX_EXPANDED: u64 = 2 * 1024 * 1024 * 1024;
@@ -188,7 +188,7 @@ fn verified(bytes: &[u8], signature: &[u8], key: &str, current: &str) -> Result<
         return Err("Version non applicable".into());
     }
     let expected = format!(
-        "https://github.com/extraopaa/mcp-win/releases/download/v{}/mcp-win-v{}-windows-x64.zip",
+        "https://github.com/10hecone/mcp-win/releases/download/v{}/mcp-win-v{}-windows-x64.zip",
         m.version, m.version
     );
     if m.url != expected
@@ -710,7 +710,7 @@ mod tests {
             version: version.into(),
             target: "windows-x86_64".into(),
             url: format!(
-                "https://github.com/extraopaa/mcp-win/releases/download/v{version}/mcp-win-v{version}-windows-x64.zip"
+                "https://github.com/10hecone/mcp-win/releases/download/v{version}/mcp-win-v{version}-windows-x64.zip"
             ),
             sha256: "a".repeat(64),
             size: 123,

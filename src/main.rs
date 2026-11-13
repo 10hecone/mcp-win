@@ -2,6 +2,7 @@
 mod advanced;
 mod archives;
 mod cloudflare;
+mod command;
 mod desktop;
 mod documents;
 mod duckdb;

@@ -125,6 +125,21 @@ pub struct DeleteArgs {
     /// Empreinte SHA256 actuelle retournée par read_file.
     expected_sha256: String,
 }
+#[derive(Deserialize, schemars::JsonSchema)]
+pub struct RunArgs {
+    /// ID via list_folders ou nom exact unique. Omettre si un seul dossier est partage.
+    #[serde(default)]
+    folder: String,
+    /// Programme autorisé : git, npm ou cargo.
+    program: String,
+    /// Arguments, un par élément. Aucun shell : pas de |, &&, > ni de variables.
+    #[serde(default)]
+    args: Vec<String>,
+    /// Sous-dossier de travail relatif. Vide pour la racine du dossier partagé.
+    cwd: Option<String>,
+    /// Délai maximal en secondes (défaut 120, maximum 600).
+    timeout_seconds: Option<u64>,
+}
 pub type DocumentArgs = crate::v1::design::Args;
 #[derive(Deserialize, schemars::JsonSchema)]
 pub struct BinaryArgs {
@@ -1031,6 +1046,22 @@ impl FilesServer {
         log(&self.logs, format!("Suppression : {}", args.path));
         blocking(move || writing::delete(&folders, &args.folder, &args.path, &args.expected_sha256))
             .await
+    }
+    #[tool(
+        description = "Exécuter git, npm ou cargo dans un dossier writable, sans shell. Désactivé par défaut (variable MCPWIN_ENABLE_RUN_COMMAND=1 au lancement). Arguments en liste, délai maximal 600 s, sortie tronquée à 20000 caractères. Ne lancer une commande que si l'utilisateur l'a explicitement demandée."
+    )]
+    async fn run_command(&self, Parameters(args): Parameters<RunArgs>) -> CallToolResult {
+        log(&self.logs, format!("Commande : {} {}", args.program, args.args.join(" ")));
+        let value = crate::command::run(
+            &self.folders,
+            &args.folder,
+            args.cwd.as_deref(),
+            &args.program,
+            &args.args,
+            args.timeout_seconds,
+        )
+        .await;
+        result(value)
     }
     #[tool(
         description = "Créer un PDF, DOCX ou PPTX avec mise en page professionnelle PAR DÉFAUT : thème, titres, marges, tableaux, encadrés, pagination, profil visuel et sources vérifiées. Accepte sections classiques ou blocks (heading/paragraph/list/table/callout/image) avec id stables. style professional/report/quote/invoice/commercial/course/presentation/minimal. raw=true seulement si texte brut explicitement demandé. Dossier writable, aucun écrasement. Puis review_document pour contrôler les pages. Pour Excel : write_spreadsheet."

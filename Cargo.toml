@@ -1,0 +1,63 @@
+[package]
+name = "mcp-win"
+version = "1.5.0"
+edition = "2024"
+license = "MIT"
+description = "Application native de partage de documents par MCP HTTP"
+
+[dependencies]
+tauri = { version = "2", features = [] }
+rfd = "0.17"
+rmcp = { version = "3.5.1", features = ["server", "macros", "transport-streamable-http-server"] }
+tokio = { version = "1", features = ["rt-multi-thread", "net", "sync", "time", "macros", "io-util", "process"] }
+tokio-util = "0.7"
+axum = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+pdf-extract = "0.12.1"
+roxmltree = "0.21"
+uuid = { version = "1", features = ["v4"] }
+subtle = "2"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+resvg = "0.48.1"
+base64 = "0.22"
+sha2 = "0.10"
+zip = { version = "7", default-features = false, features = ["deflate"] }
+calamine = "0.37"
+umya-spreadsheet = "3.1.1"
+docx-rs = { version = "0.4.22", default-features = false }
+ppt-rs = { version = "0.2.36", default-features = false, features = ["pdf-native"] }
+printpdf = { version = "0.12.8", default-features = false }
+ttf-parser = "0.25"
+windows-sys = { version = "0.61", features = ["Win32_System_JobObjects", "Win32_Foundation", "Win32_Security", "Win32_System_Threading", "Win32_Storage_FileSystem", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "tiff", "bmp", "webp"] }
+pdfium-render = "0.9.4"
+tempfile = "3"
+typst-syntax = "0.15.1"
+regex = "1.13.1"
+globset = "0.4.20"
+walkdir = "2.5.0"
+csv = "1.4.0"
+diffy = "0.5.2"
+tar = "0.4.46"
+flate2 = "1.1.10"
+rusqlite = { version = "0.40.2", features = ["bundled", "hooks", "limits"] }
+sevenz-rust = { version = "0.6.1", default-features = false, features = ["compress"] }
+lopdf = "0.44"
+ed25519-dalek = "2"
+semver = "1"
+getrandom = "0.3"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[dev-dependencies]
+tempfile = "3"
+
+[profile.release]
+strip = true
+lto = "thin"

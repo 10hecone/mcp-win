@@ -151,20 +151,7 @@ pub fn list(folders: &[SharedFolder], folder: &str, path: Option<&str>) -> Resul
     versions.truncate(200);
     Ok(json!({"versions":versions,"total":total,"truncated":total>200}))
 }
-<<<<<<< HEAD
-fn load(
-    folders: &[SharedFolder],
-    folder: &str,
-    id: &str,
-) -> Result<(Version, Vec<u8>), String> {
-=======
-pub fn restore(
-    folders: &[SharedFolder],
-    folder: &str,
-    id: &str,
-    expected: &str,
-) -> Result<Value, String> {
->>>>>>> 6a7017d57de31e2601b7c8343df980b8e28b8929
+fn load(folders: &[SharedFolder], folder: &str, id: &str) -> Result<(Version, Vec<u8>), String> {
     if id.len() != 32 || !id.bytes().all(|b| b.is_ascii_hexdigit()) {
         return Err("Identifiant de version invalide".into());
     }
@@ -195,7 +182,6 @@ pub fn restore(
     if v.id != id || writing::hash(&bytes) != v.sha256 {
         return Err("Version altérée : restauration refusée".into());
     }
-<<<<<<< HEAD
     Ok((v, bytes))
 }
 pub fn restore(
@@ -220,10 +206,6 @@ pub fn restore_deleted(
     }
     writing::commit(folders, folder, &v.path, &bytes, None)
 }
-=======
-    writing::commit(folders, folder, &v.path, &bytes, Some(expected))
-}
->>>>>>> 6a7017d57de31e2601b7c8343df980b8e28b8929
 
 pub fn restore_local(folders: &[SharedFolder], folder: &str, id: &str) -> Result<Value, String> {
     if id.len() != 32 || !id.bytes().all(|b| b.is_ascii_hexdigit()) {

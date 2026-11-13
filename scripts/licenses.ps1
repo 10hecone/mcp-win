@@ -13,7 +13,7 @@ try {
     $lines.Add('')
     $lines.Add('Inventaire Cargo.lock : dépendances de production, développement, compilation et plateformes. Les notices fournies par les crates sont recopiées dans third-party-licenses. Certaines crates proposent plusieurs licences au choix. Les mentions des polices sont également incluses.')
     $lines.Add('')
-    $lines.Add('Les moteurs bureautiques disposent d’un [inventaire complémentaire](docs/OFFICE-LICENSES.md) et de notices dans third-party-licenses/office.')
+    $lines.Add("Les moteurs bureautiques disposent d’un [inventaire complémentaire](docs/OFFICE-LICENSES.md) et de notices dans third-party-licenses/office.")
     $lines.Add('')
     $lines.Add('| Bibliothèque | Version | Licence déclarée | Source |')
     $lines.Add('| --- | --- | --- | --- |')
